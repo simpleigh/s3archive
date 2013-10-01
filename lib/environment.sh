@@ -2,7 +2,6 @@
 ##
 # S3 Archive - Library
 #
-# @depends var.sh
 # @author Leigh Simpson <code@simpleigh.com>
 # @copyright Copyright © 2013, Leigh Simpson
 #
