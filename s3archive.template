@@ -1,0 +1,107 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "Minimal template for an EC2 instance able to use S3 Archive",
+  
+  "Parameters" : {
+    "KeyName" : {
+      "Type"        : "String",
+      "MinLength"   : "1",
+      "Description" : "Keypair name to install on the new instance"
+    }
+  },
+  
+  "Resources" : {
+    "instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "ImageId"            : "ami-968b6ce1",
+        "InstanceType"       : "t1.micro",
+        "SecurityGroups"     : [ { "Ref" : "securityGroup" } ],
+        "KeyName"            : { "Ref" : "KeyName" },
+        "IamInstanceProfile" : { "Ref" : "instanceProfile" }
+      }
+    },
+    
+    "securityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription"     : "S3 Archive",
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol" : "tcp",
+            "FromPort"   : "22",
+            "ToPort"     : "22",
+            "CidrIp"     : "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    
+    "bucket" : { "Type" : "AWS::S3::Bucket" },
+    
+    "role" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "Path" : "/",
+        "AssumeRolePolicyDocument" : {
+          "Statement" : [ {
+            "Effect"    : "Allow",
+            "Principal" : { "Service" : [ "ec2.amazonaws.com" ] },
+            "Action"    : [ "sts:AssumeRole" ]
+          } ]
+        }
+      }
+    },
+    
+    "policy" : {
+      "Type" : "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName"     : "policy",
+        "PolicyDocument" : {
+          "Statement" : [
+            {
+              "Effect"   : "Allow",
+              "Action"   : [
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+              ],
+              "Resource" : {
+                "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "bucket" } ] ]
+              }
+            }
+          ]
+        },
+        "Roles" : [ { "Ref" : "role" } ]
+      }
+    },
+    
+    "instanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path"  : "/",
+        "Roles" : [ { "Ref" : "role" } ]
+      }
+    }
+  },
+  
+  "Outputs" : {
+    "Instance" : {
+      "Value"       : { "Fn::GetAtt" : [ "instance", "PublicDnsName" ] },
+      "Description" : "Instance public DNS name"
+    },
+    
+    "Bucket" : {
+      "Value"       : { "Ref" : "bucket" },
+      "Description" : "S3 bucket name"
+    },
+    
+    "Role" : {
+      "Value"       : { "Ref" : "role" },
+      "Description" : "IAM role name"
+    }
+  }
+}
