@@ -21,6 +21,49 @@ Will support:
 
 Why not?
 
+## Installation
+
+### Requirements
+
+The library uses several external programs.
+These are all available via `apt` on Ubuntu (and probably Debian too),
+or as source from the linked locations.
+
+#### bash
+
+The core requirement is a working bash installation (for obvious reasons).
+Used as the command interpreter.
+Luckily this is almost always available on *nix systems.
+http://www.gnu.org/software/bash/
+
+#### base64
+
+Used to encode signed requests for transmission across the web.
+Again this is almost always available: it's part of GNU coreutils.
+The `coreutils` package is considered essential for Ubuntu.
+http://www.gnu.org/software/coreutils/
+
+#### curl
+
+Used to make requests to the AWS API.
+If this isn't installed then Ubuntu provides it in the `curl` package.
+http://curl.haxx.se/
+
+### openssl
+
+Used to signs requests using AWS credentials.
+This is probably already installed - it's required by most server software.
+Ubuntu provides this in the `openssl` package.
+http://www.openssl.org/
+
+### which
+
+Used to check required programs exist.
+If you don't have a binary for this, and don't fancy compiling it,
+you'll probably be able to find a shell script on the web to do the job.
+Ubuntu provides this via the `debianutils` package, which is marked essential.
+http://carlo17.home.xs4all.nl/which/
+
 ## How can I try it?
 
 ### Temporary Access Credentials
