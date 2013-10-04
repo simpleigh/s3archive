@@ -56,6 +56,13 @@ This is probably already installed - it's required by most server software.
 Ubuntu provides this in the `openssl` package.
 http://www.openssl.org/
 
+### sed
+
+Used to process configuration information.
+This is almost always available too.
+The `sed` package is considered essential for Ubuntu.
+http://www.gnu.org/software/sed/
+
 ### which
 
 Used to check required programs exist.

@@ -27,13 +27,18 @@ set -o errexit
 
 ##
 # Initialises all global variables
-# @global array REQUEST_Headers All request headers
+# @global array  REQUEST_Headers All request headers
+# @global string AWS_SECURITY_TOKEN
 ##
 function request_initialise {
     var_exists REQUEST_Headers && unset REQUEST_Headers
     declare -Ag REQUEST_Headers
     
     request_add_header 'Date' "$(date '+%a, %d %b %Y %-H:%M:%S %z')"
+    
+    if [ $(var_exists 'AWS_SECURITY_TOKEN') ]; then
+        request_add_header 'x-amz-security-token' "$AWS_SECURITY_TOKEN"
+    fi
 }
 
 
@@ -59,19 +64,17 @@ function request_add_header {
 # Not supported:
 #  - more than one header with the same name
 #  - headers spanning multiple lines
-# @param  string AWS_ACCESS_KEY  Access key ID
-# @param  string AWS_SECRET_KEY  Secret access key
-# @param  string VERB            Request method
-# @param  string BUCKET          Bucket name
-# @param  string OBJECT          Object within bucket (optional)
-# @global array  REQUEST_Headers All request headers
+# @param  string VERB                  Request method
+# @param  string BUCKET                Bucket name
+# @param  string OBJECT                Object within bucket (optional)
+# @global string AWS_ACCESS_KEY_ID     Access key ID
+# @global string AWS_SECRET_ACCESS_KEY Secret access key
+# @global array  REQUEST_Headers       All request headers
 ##
 function request_sign {
-    local AWS_ACCESS_KEY="$1"
-    local AWS_SECRET_KEY="$2"
-    local VERB="$3"
-    local BUCKET="$4"
-    local OBJECT="${5:-}"
+    local VERB="$1"
+    local BUCKET="$2"
+    local OBJECT="${3:-}"
     
     environment_require_variable_array_assoc 'REQUEST_Headers'
     environment_require_program 'openssl'
@@ -121,10 +124,10 @@ function request_sign {
     
     # Sign it
     local SIGNATURE=$(echo -n "$STRING" |
-        openssl dgst -binary -hmac "$AWS_SECRET_KEY" -sha1 |
+        openssl dgst -binary -hmac "$AWS_SECRET_ACCESS_KEY" -sha1 |
         base64)
 
-    request_add_header 'Authorization' "AWS $AWS_ACCESS_KEY:$SIGNATURE"
+    request_add_header 'Authorization' "AWS $AWS_ACCESS_KEY_ID:$SIGNATURE"
 }
 
 
