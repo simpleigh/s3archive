@@ -42,7 +42,7 @@ function config_load {
     local varname='[[:alpha:]_][[:alnum:]_]*'
     local vardata='[[:alnum:]/+=._-]+'
     local variable="(${vardata})|('${vardata}')|(\"${vardata}\")"
-    local regex="^${space}(${varname})${space}=${space}(${variable})${space}$"
+    local regex="^${space}(${varname})${space}=${space}(${variable})${space}"
     
     # Load environment variables from config file
     local line
